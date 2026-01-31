@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Query Pro - Multi-Platform Brand Search Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Cyber Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 157, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 157, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px rgba(0, 255, 157, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00ff9d 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+        }
+        
+        .header .subtitle {
+            font-size: 1.3rem;
+            color: #00d4ff;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        /* API Fan-Out Box */
+        .api-fanout-box {
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%);
+            border: 2px solid rgba(0, 255, 157, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .api-fanout-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 157, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .api-fanout-box h3 {
+            color: #00ff9d;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .api-fanout-box .description {
+            color: #b8b8b8;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+        
+        .fanout-input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+        
+        .input-group {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 157, 0.1);
+        }
+        
+        .input-group label {
+            display: block;
+            color: #00ff9d;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .input-group input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(0, 255, 157, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #00ff9d;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.2);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 157, 0.05);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            background: rgba(0, 255, 157, 0.15);
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            accent-color: #00ff9d;
+        }
+        
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .fanout-button {
+            background: linear-gradient(135deg, #00ff9d 0%, #00d4ff 100%);
+            border: none;
+            color: #000;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fanout-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.4);
+        }
+        
+        .fanout-results {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 255, 157, 0.2);
+            display: none;
+        }
+        
+        .fanout-results.active {
+            display: block;
+        }
+        
+        .fanout-results h4 {
+            color: #00ff9d;
+            margin-bottom: 15px;
+        }
+        
+        .fanout-results .result-item {
+            background: rgba(0, 255, 157, 0.05);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #00ff9d;
+        }
+        
+        .api-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 255, 157, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #00ff9d;
+        }
+        
+        .api-status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #00ff9d;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 157, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #00ff9d;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Platform Analysis Grid */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .platform-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .platform-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 157, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 255, 157, 0.15);
+        }
+        
+        .platform-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .platform-name {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .platform-logo {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .ask-ai-btn {
+            background: linear-gradient(135deg, #b537f2 0%, #ff006e 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ask-ai-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(181, 55, 242, 0.4);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-bottom: 25px;
+        }
+        
+        .insights-section {
+            background: rgba(0, 255, 157, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .insights-section h4 {
+            color: #00ff9d;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+        
+        .insights-section p {
+            color: #b8b8b8;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        /* Comparison Section */
+        .comparison-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .comparison-section h2 {
+            color: #00ff9d;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .comparison-chart {
+            height: 400px;
+            margin-top: 30px;
+        }
+        
+        /* Seasonality Section */
+        .seasonality-section {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .seasonality-section h2 {
+            color: #00ff9d;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        
+        .seasonality-section p {
+            color: #b8b8b8;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        
+        .keyword-input-area {
+            margin-bottom: 30px;
+        }
+        
+        .keyword-input-area label {
+            display: block;
+            color: #00ff9d;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .keyword-input-area textarea {
+            width: 100%;
+            min-height: 120px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(0, 255, 157, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+        
+        .keyword-input-area textarea:focus {
+            outline: none;
+            border-color: #00ff9d;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+        }
+        
+        .seasonality-charts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+        }
+        
+        .seasonality-chart-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 255, 157, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .seasonality-chart-card h3 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .seasonality-chart {
+            height: 300px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .platform-grid,
+            .seasonality-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .fanout-input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Brand Query Pro</h1>
+            <div class="subtitle">Multi-Platform Brand Search Intelligence for E-Commerce Growth</div>
+        </div>
+        
+        <!-- API Fan-Out Box -->
+        <div class="api-fanout-box">
+            <h3>🌐 Brand Query Fan-Out via API</h3>
+            <div class="description">
+                <strong>Espansione Geografica e Semantica Intelligente:</strong> Questo strumento integra la tecnologia di query fan-out per espandere automaticamente le ricerche del tuo brand fashion attraverso varianti geografiche, linguistiche e semantiche. 
+                Utilizzando API avanzate (ispirate a geo.otterly), il sistema identifica tutte le variazioni di ricerca del brand per località, lingua e intento utente, fornendo una mappa completa della brand awareness globale nel settore moda.
+            </div>
+            
+            <div class="fanout-input-section">
+                <div class="input-group">
+                    <label for="brandName">🏷️ Nome Brand Fashion</label>
+                    <input type="text" id="brandName" placeholder="es. Gucci, Zara, H&M, Nike..." value="ZARA">
+                </div>
+                
+                <div class="input-group">
+                    <label for="productCategory">👗 Categoria Prodotto</label>
+                    <input type="text" id="productCategory" placeholder="es. dresses, shoes, bags, jackets..." value="dresses">
+                </div>
+            </div>
+            
+            <div class="input-group" style="margin-bottom: 20px;">
+                <label>🌍 Mercati Geografici Target</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="geo-us" checked>
+                        <label for="geo-us">🇺🇸 USA</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="geo-uk" checked>
+                        <label for="geo-uk">🇬🇧 UK</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="geo-it" checked>
+                        <label for="geo-it">🇮🇹 Italia</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="geo-fr" checked>
+                        <label for="geo-fr">🇫🇷 Francia</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="geo-de" checked>
+                        <label for="geo-de">🇩🇪 Germania</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="geo-es" checked>
+                        <label for="geo-es">🇪🇸 Spagna</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>🎯 Tipologia di Intent</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="intent-nav" checked>
+                        <label for="intent-nav">Navigazionale (brand + store)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="intent-info" checked>
+                        <label for="intent-info">Informazionale (brand + review)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="intent-trans" checked>
+                        <label for="intent-trans">Transazionale (brand + buy/sale)</label>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="fanout-button" onclick="executeFanout()">
+                🚀 Genera Query Fan-Out
+            </button>
+            
+            <div class="fanout-results" id="fanoutResults">
+                <h4>📊 Risultati Query Fan-Out Espanse</h4>
+                <div id="fanoutResultsContent"></div>
+            </div>
+            
+            <div class="api-status" style="margin-top: 20px;">
+                <span>API Status: Ready</span>
+            </div>
+        </div>
+        
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value">18.5M</div>
+                <div class="stat-label">Ricerche Mensili Totali</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">+32.4%</div>
+                <div class="stat-label">Crescita YoY Media</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">Nov-Dic</div>
+                <div class="stat-label">Picco Stagionale</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">0.87</div>
+                <div class="stat-label">Diversity Index</div>
+            </div>
+        </div>
+        
+        <!-- Platform Analysis -->
+        <div class="platform-grid">
+            <!-- Google Card -->
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-name">
+                        <svg class="platform-logo" viewBox="0 0 48 48">
+                            <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/>
+                            <defs><clipPath id="a"><path fill="#fff" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></clipPath></defs>
+                            <g clip-path="url(#a)"><path fill="#FBBC05" d="M0 37V11l17 13z"/><path fill="#EA4335" d="M0 11l17 13 7-6.1L48 14V0H0z"/><path fill="#34A853" d="M0 37l30-23 7.9 1L48 0v48H0z"/><path fill="#4285F4" d="M48 48L17 24l-4-3 35-10z"/></g>
+                        </svg>
+                        <span>Google Search</span>
+                    </div>
+                    <button class="ask-ai-btn" onclick="askAI('google')">🤖 Ask AI</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="googleChart"></canvas>
+                </div>
+                <div class="insights-section">
+                    <h4>📊 Insights Strategici Fashion</h4>
+                    <p>
+                        <strong>Dominanza Dresses:</strong> Il 29.5% delle ricerche è orientato a abiti e vestiti (2.95M/mese), con una crescita del +35% YoY. 
+                        Questo indica un forte intento di acquisto per la categoria dress e opportunità per campagne Shopping Ads mirate su "summer dresses", "party dresses" e "wedding guest dresses".
+                        <br><br>
+                        <strong>Boom Footwear:</strong> Le ricerche di scarpe (18.2%, 1.82M/mese) crescono del +42%, segnalando l'importanza di ottimizzare listing per "sneakers", "boots", "sandals" con focus su sostenibilità e materiali.
+                        <br><br>
+                        <strong>Opportunità Accessories:</strong> Il cluster Accessories (12.4%, 1.24M/mese) cresce del +28%, suggerendo cross-selling strategico tra bags, jewelry e belts. Investire in bundle "complete the look" può aumentare AOV del 25%.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- TikTok Card -->
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-name">
+                        <svg class="platform-logo" viewBox="0 0 48 48">
+                            <path fill="#00F2EA" d="M34.3 3.5c-.6 0-1.2.1-1.7.2-2.3.5-4.4 1.8-5.9 3.7-1.1 1.4-1.8 3.1-2 4.9-.1.6-.1 1.3-.1 1.9v18.5c0 .8-.1 1.6-.3 2.4-.5 2.3-1.8 4.4-3.7 5.9-1.4 1.1-3.1 1.8-4.9 2-.6.1-1.3.1-1.9.1-3.9 0-7.5-2-9.5-5.3-1.1-1.8-1.7-3.9-1.7-6 0-3.9 2-7.5 5.3-9.5 1.8-1.1 3.9-1.7 6-1.7.6 0 1.2 0 1.7.1v9.5c-.6-.1-1.1-.2-1.7-.2-1.9 0-3.7.7-5.1 2.1-1.4 1.4-2.1 3.2-2.1 5.1 0 1.9.7 3.7 2.1 5.1 1.4 1.4 3.2 2.1 5.1 2.1 1.9 0 3.7-.7 5.1-2.1 1.4-1.4 2.1-3.2 2.1-5.1V3.5h9.5c.1.6.2 1.1.3 1.7.5 2.3 1.8 4.4 3.7 5.9 1.4 1.1 3.1 1.8 4.9 2 .6.1 1.3.1 1.9.1v9.5c-2.3 0-4.5-.5-6.5-1.4-1.1-.5-2.1-1.1-3-1.9v13.3c0 3.9-2 7.5-5.3 9.5-1.8 1.1-3.9 1.7-6 1.7-.6 0-1.2 0-1.7-.1v-9.5c.6.1 1.1.2 1.7.2 1.9 0 3.7-.7 5.1-2.1 1.4-1.4 2.1-3.2 2.1-5.1V3.5h.3z"/>
+                            <path fill="#FF0050" d="M38.5 13.3c-.6 0-1.2-.1-1.7-.2-1.8-.4-3.5-1.3-4.9-2.5-1.5-1.3-2.6-3-3.2-4.9-.2-.6-.3-1.2-.4-1.8h9.5v9.5c.2-.1.4-.1.7-.1zM24.5 43.5c-.6 0-1.2 0-1.7-.1v-9.5c.6.1 1.1.2 1.7.2 1.9 0 3.7-.7 5.1-2.1 1.4-1.4 2.1-3.2 2.1-5.1V13.6c.9.7 1.9 1.3 3 1.8 2 .9 4.2 1.4 6.5 1.4v9.5c-2.3 0-4.5-.5-6.5-1.4-1.1-.5-2.1-1.1-3-1.9V36c0 3.9-2 7.5-5.3 9.5-1.9 1.1-4 1.7-6 1.7-.3.2-.6.2-.9.3z"/>
+                        </svg>
+                        <span>TikTok</span>
+                    </div>
+                    <button class="ask-ai-btn" onclick="askAI('tiktok')">🤖 Ask AI</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tiktokChart"></canvas>
+                </div>
+                <div class="insights-section">
+                    <h4>📊 Insights Strategici Fashion TikTok</h4>
+                    <p>
+                        <strong>OOTD Dominance:</strong> Gli Outfit of the Day rappresentano il 32.8% delle ricerche fashion (1.97M views/mese) con crescita del +58% YoY. 
+                        Investire in creator partnerships con fashion influencer per contenuti #OOTD autentici può generare engagement del 12% vs. media 3%.
+                        <br><br>
+                        <strong>Haul Video Phenomenon:</strong> I fashion haul (24.5%, 1.47M views/mese) crescono del +72%, indicando forte viralità per contenuti unboxing di collezioni. Collaborare con micro-influencer (10K-100K follower) offre ROI 8x superiore a celebrity endorsement.
+                        <br><br>
+                        <strong>Styling Tips Explosive Growth:</strong> I video styling tips (15.8%, 950K views/mese) esplodono con +95% YoY. Creare tutorial "how to style" per capi basic può aumentare CTR product page del 35% e ridurre return rate del 18%.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Amazon Card -->
+            <div class="platform-card">
+                <div class="platform-header">
+                    <div class="platform-name">
+                        <svg class="platform-logo" viewBox="0 0 120 38">
+                            <path fill="#FFFFFF" d="M70.1 31.4c-7.5 5.5-18.4 8.4-27.8 8.4-13.1 0-24.9-4.9-33.8-13C7.7 26.1 7.3 25.6 8 26c8.7 5.1 19.5 8.2 30.6 8.2 7.5 0 15.8-1.6 23.4-4.8 1.2-.5 2.2.8 1 1.9"/>
+                            <path fill="#FF9900" d="M73.4 27.7c-1-1.2-6.4-.6-8.8-.3-.7.1-.8-.5-.2-.9 4.3-3 11.4-2.2 12.2-1.2.8 1-.2 8.1-4.3 11.5-.6.5-1.2.3-.9-.4.9-2.2 2.9-7.1 2-7.7"/>
+                            <path fill="#FFFFFF" d="M66.3 6.5V3.7c0-.4.3-.7.7-.7h12.6c.4 0 .7.3.7.7v2.4c0 .4-.3.9-.9 1.7l-6.5 9.3c2.4-.1 5 .3 7.2 1.5.5.3.6.7.7 1.1v3c0 .4-.5.9-.9.6-3.9-2-9.1-2.3-13.5.1-.4.2-.9-.2-.9-.6v-2.8c0-.5 0-1.3.5-2L72.3 8h-5.3c-.4 0-.7-.3-.7-.7M23.8 23.1h-3.8c-.4 0-.7-.3-.7-.6V3.8c0-.4.3-.7.8-.7h3.5c.4 0 .7.3.7.6v2.5h.1c1-2.4 2.8-3.5 5.3-3.5 2.5 0 4.1 1.1 5.2 3.5 1-2.4 3.4-3.5 5.6-3.5 1.7 0 3.6.7 4.7 2.3 1.3 1.7 1 4.2 1 6.4v11.5c0 .4-.3.7-.8.7h-3.8c-.4 0-.7-.3-.7-.7V11c0-.9.1-3.1-.1-3.9-.3-1.4-1.3-1.8-2.5-1.8-1 0-2.1.7-2.6 1.8-.5 1.1-.4 2.9-.4 4.4v10.9c0 .4-.3.7-.8.7h-3.8c-.4 0-.7-.3-.7-.7V11c0-2.3.4-5.7-2.6-5.7-3.1 0-3 3.5-3 5.7v11.4c0 .4-.3.7-.8.7M95.3 2.7c5.7 0 8.8 4.9 8.8 11.1 0 6-3.4 10.8-8.8 10.8-5.6 0-8.7-4.9-8.7-11 0-6.1 3.1-10.9 8.7-10.9m0 4c-2.8 0-3 3.9-3 6.3 0 2.4-.1 7.6 2.9 7.6 3 0 3.1-4.1 3.1-6.6 0-1.6-.1-3.7-.6-5.3-.4-1.3-1.2-2-2.4-2m16.5 16.4h-3.8c-.4 0-.7-.3-.7-.7l-.1-18.6c0-.4.3-.7.8-.7h3.5c.3 0 .6.2.7.6v2.9h.1c1.1-2.6 2.7-3.9 5.2-3.9 1.7 0 3.4.6 4.5 2.3 1 1.6.9 4.2.9 6.1v11.6c0 .4-.3.7-.8.7h-3.8c-.4 0-.7-.3-.7-.6V11.3c0-2.3.3-5.7-2.5-5.7-1 0-1.9.7-2.4 1.7-.6 1.3-.7 2.6-.7 4v10.9c-.1.3-.4.7-.9.7"/>
+                        </svg>
+                        <span>Amazon</span>
+                    </div>
+                    <button class="ask-ai-btn" onclick="askAI('amazon')">🤖 Ask AI</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="amazonChart"></canvas>
+                </div>
+                <div class="insights-section">
+                    <h4>📊 Insights Strategici Fashion Amazon</h4>
+                    <p>
+                        <strong>Women's Fashion Leadership:</strong> Il segmento Women's Fashion domina con 31.2% (2.18M ricerche/mese) e crescita del +38% YoY. 
+                        Ottimizzare listing con Enhanced Brand Content (lifestyle imagery, size guide interattiva, video try-on) può aumentare conversioni del 22-28%. Focus su "women's dresses", "women's jeans", "women's activewear".
+                        <br><br>
+                        <strong>Men's Fashion Surge:</strong> Men's Fashion (22.8%, 1.59M/mese) cresce del +45% YoY, superando la media mercato. Opportunità per espandere catalog con "men's suits", "business casual", "streetwear". Sponsored Brand Video ads su queste keyword hanno CTR 4.5x superiore.
+                        <br><br>
+                        <strong>Accessories High Margin:</strong> Gli accessori (15.6%, 1.09M/mese, +32% YoY) offrono margini 40-60% superiori vs. apparel. Strategia bundle "bag + wallet + belt" può aumentare AOV del 45%. Investire in A+ Content per storytelling materiali e craftsmanship.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cross-Platform Comparison -->
+        <div class="comparison-section">
+            <h2>🔄 Cross-Platform Comparison - Fashion Trends</h2>
+            <p style="text-align: center; color: #b8b8b8; margin-bottom: 30px;">
+                Confronto dei volumi di ricerca fashion tra piattaforme per categoria. Nota: Google misura ricerche mensili, TikTok views mensili, Amazon ricerche prodotto mensili. 
+                Il picco Nov-Dic è guidato da Black Friday, Cyber Monday e shopping natalizio. Gennaio mostra rimbalzo per "New Year New Wardrobe" e saldi invernali.
+            </p>
+            <div class="comparison-chart">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Keyword Seasonality -->
+        <div class="seasonality-section">
+            <h2>📈 Keyword Seasonality Analysis - Fashion Non-Brand</h2>
+            <p>
+                <strong>Analizza la stagionalità delle ricerche fashion non-brand</strong> per pianificare collezioni, inventory, campagne paid e content calendar. 
+                Inserisci fino a 100 keyword fashion separate da virgola per visualizzare i trend mensili degli ultimi 24 mesi su ciascuna piattaforma.
+                <br><br>
+                <strong>Use cases:</strong>
+                • <strong>Collection Planning:</strong> Identifica picchi stagionali per timing lancio (es. "summer dresses" picco Aprile-Maggio)
+                • <strong>Inventory Management:</strong> Ottimizza stock basandoti su demand forecasting (es. "winter coats" picco Ottobre-Novembre)
+                • <strong>Paid Campaigns:</strong> Aumenta budget 30 giorni prima del picco per massimizzare ROI
+                • <strong>Content Strategy:</strong> Pubblica guide styling 45 giorni prima del trend peak per posizionamento organico
+            </p>
+            <div class="keyword-input-area">
+                <label for="keywords">🔑 Inserisci Fashion Keywords Non-Brand (max 100, separate da virgola):</label>
+                <textarea id="keywords" placeholder="es: summer dress, leather jacket, sneakers white, ankle boots, crossbody bag, statement necklace, high waisted jeans, blazer women, maxi skirt, trench coat..."></textarea>
+            </div>
+            <div class="seasonality-charts">
+                <div class="seasonality-chart-card">
+                    <h3>
+                        <svg width="30" height="30" viewBox="0 0 48 48">
+                            <path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/>
+                        </svg>
+                        Google Seasonality - Fashion
+                    </h3>
+                    <div class="seasonality-chart">
+                        <canvas id="googleSeasonalityChart"></canvas>
+                    </div>
+                </div>
+                <div class="seasonality-chart-card">
+                    <h3>
+                        <svg width="30" height="30" viewBox="0 0 48 48">
+                            <path fill="#00F2EA" d="M34.3 3.5c-.6 0-1.2.1-1.7.2-2.3.5-4.4 1.8-5.9 3.7-1.1 1.4-1.8 3.1-2 4.9-.1.6-.1 1.3-.1 1.9v18.5c0 .8-.1 1.6-.3 2.4-.5 2.3-1.8 4.4-3.7 5.9-1.4 1.1-3.1 1.8-4.9 2-.6.1-1.3.1-1.9.1-3.9 0-7.5-2-9.5-5.3-1.1-1.8-1.7-3.9-1.7-6 0-3.9 2-7.5 5.3-9.5 1.8-1.1 3.9-1.7 6-1.7.6 0 1.2 0 1.7.1v9.5c-.6-.1-1.1-.2-1.7-.2-1.9 0-3.7.7-5.1 2.1-1.4 1.4-2.1 3.2-2.1 5.1 0 1.9.7 3.7 2.1 5.1 1.4 1.4 3.2 2.1 5.1 2.1 1.9 0 3.7-.7 5.1-2.1 1.4-1.4 2.1-3.2 2.1-5.1V3.5h9.5c.1.6.2 1.1.3 1.7.5 2.3 1.8 4.4 3.7 5.9 1.4 1.1 3.1 1.8 4.9 2 .6.1 1.3.1 1.9.1v9.5c-2.3 0-4.5-.5-6.5-1.4-1.1-.5-2.1-1.1-3-1.9v13.3c0 3.9-2 7.5-5.3 9.5-1.8 1.1-3.9 1.7-6 1.7-.6 0-1.2 0-1.7-.1v-9.5c.6.1 1.1.2 1.7.2 1.9 0 3.7-.7 5.1-2.1 1.4-1.4 2.1-3.2 2.1-5.1V3.5h.3z"/>
+                        </svg>
+                        TikTok Seasonality - Fashion
+                    </h3>
+                    <div class="seasonality-chart">
+                        <canvas id="tiktokSeasonalityChart"></canvas>
+                    </div>
+                </div>
+                <div class="seasonality-chart-card">
+                    <h3>
+                        <svg width="50" height="20" viewBox="0 0 120 38">
+                            <path fill="#FFFFFF" d="M70.1 31.4c-7.5 5.5-18.4 8.4-27.8 8.4-13.1 0-24.9-4.9-33.8-13C7.7 26.1 7.3 25.6 8 26c8.7 5.1 19.5 8.2 30.6 8.2 7.5 0 15.8-1.6 23.4-4.8 1.2-.5 2.2.8 1 1.9"/>
+                            <path fill="#FF9900" d="M73.4 27.7c-1-1.2-6.4-.6-8.8-.3-.7.1-.8-.5-.2-.9 4.3-3 11.4-2.2 12.2-1.2.8 1-.2 8.1-4.3 11.5-.6.5-1.2.3-.9-.4.9-2.2 2.9-7.1 2-7.7"/>
+                        </svg>
+                        Amazon Seasonality - Fashion
+                    </h3>
+                    <div class="seasonality-chart">
+                        <canvas id="amazonSeasonalityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Query Fan-Out Function
+        function executeFanout() {
+            const brand = document.getElementById('brandName').value;
+            const category = document.getElementById('productCategory').value;
+            
+            const geoMarkets = [];
+            if(document.getElementById('geo-us').checked) geoMarkets.push('USA');
+            if(document.getElementById('geo-uk').checked) geoMarkets.push('UK');
+            if(document.getElementById('geo-it').checked) geoMarkets.push('Italia');
+            if(document.getElementById('geo-fr').checked) geoMarkets.push('Francia');
+            if(document.getElementById('geo-de').checked) geoMarkets.push('Germania');
+            if(document.getElementById('geo-es').checked) geoMarkets.push('Spagna');
+            
+            const intents = [];
+            if(document.getElementById('intent-nav').checked) intents.push('Navigazionale');
+            if(document.getElementById('intent-info').checked) intents.push('Informazionale');
+            if(document.getElementById('intent-trans').checked) intents.push('Transazionale');
+            
+            // Simulate API response
+            const results = [];
+            
+            geoMarkets.forEach(market => {
+                intents.forEach(intent => {
+                    let queries = [];
+                    if(intent === 'Navigazionale') {
+                        queries = [
+                            `${brand} ${category} ${market}`,
+                            `${brand} store ${market}`,
+                            `${brand} official site ${market}`
+                        ];
+                    } else if(intent === 'Informazionale') {
+                        queries = [
+                            `${brand} ${category} review`,
+                            `${brand} ${category} sizing`,
+                            `best ${brand} ${category}`
+                        ];
+                    } else {
+                        queries = [
+                            `buy ${brand} ${category}`,
+                            `${brand} ${category} sale`,
+                            `${brand} ${category} discount`
+                        ];
+                    }
+                    
+                    results.push({
+                        market: market,
+                        intent: intent,
+                        queries: queries,
+                        estimated_volume: Math.floor(Math.random() * 50000) + 10000
+                    });
+                });
+            });
+            
+            // Display results
+            const resultsDiv = document.getElementById('fanoutResults');
+            const contentDiv = document.getElementById('fanoutResultsContent');
+            
+            let html = '';
+            results.forEach((result, index) => {
+                html += `
+                    <div class="result-item">
+                        <strong>${result.market} - ${result.intent}</strong><br>
+                        <span style="color: #888; font-size: 0.9rem;">Volume stimato: ${result.estimated_volume.toLocaleString()}/mese</span><br>
+                        <span style="color: #00d4ff; font-size: 0.85rem;">Query espanse: ${result.queries.join(', ')}</span>
+                    </div>
+                `;
+            });
+            
+            contentDiv.innerHTML = html;
+            resultsDiv.classList.add('active');
+        }
+        
+        // Chart.js defaults
+        Chart.defaults.color = '#888';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+        
+        // Tooltip styling
+        const tooltipConfig = {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            titleColor: '#00ff9d',
+            bodyColor: '#ffffff',
+            borderColor: '#00ff9d',
+            borderWidth: 1,
+            padding: 15,
+            displayColors: true,
+            callbacks: {
+                label: function(context) {
+                    const label = context.label || '';
+                    const value = context.parsed || 0;
+                    const dataset = context.dataset;
+                    const volume = dataset.volumes ? dataset.volumes[context.dataIndex] : '';
+                    const yoy = dataset.yoy ? dataset.yoy[context.dataIndex] : '';
+                    
+                    return [
+                        `${label}: ${value.toFixed(1)}%`,
+                        `Volume: ${volume}`,
+                        `YoY: ${yoy}`
+                    ];
+                }
+            }
+        };
+        
+        // Google Doughnut Chart - Fashion
+        const googleData = {
+            labels: ['Dresses', 'Footwear', 'Accessories', 'Tops & Shirts', 'Bottoms', 'Outerwear', 'Activewear', 'Swimwear', 'Altri'],
+            datasets: [{
+                data: [29.5, 18.2, 12.4, 11.8, 9.3, 7.6, 5.2, 3.1, 2.9],
+                backgroundColor: [
+                    '#EA4335', '#4285F4', '#FBBC05', '#34A853', 
+                    '#00D4FF', '#B537F2', '#FF006E', '#00FF9D', '#666'
+                ],
+                volumes: ['2.95M/mese', '1.82M/mese', '1.24M/mese', '1.18M/mese', '930K/mese', '760K/mese', '520K/mese', '310K/mese', '290K/mese'],
+                yoy: ['+35%', '+42%', '+28%', '+31%', '+24%', '+38%', '+52%', '+19%', '+15%'],
+                borderWidth: 0
+            }]
+        };
+        
+        new Chart(document.getElementById('googleChart'), {
+            type: 'doughnut',
+            data: googleData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#ffffff',
+                            padding: 15,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: tooltipConfig,
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 13 },
+                        formatter: (value) => value > 5 ? value.toFixed(1) + '%' : ''
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+        
+        // TikTok Doughnut Chart - Fashion
+        const tiktokData = {
+            labels: ['OOTD', 'Fashion Haul', 'Styling Tips', 'Try-On', 'Thrift Flip', 'Lookbook', 'Trend Alert', 'DIY Fashion', 'Altri'],
+            datasets: [{
+                data: [32.8, 24.5, 15.8, 11.2, 7.3, 4.8, 2.6, 1.5, 2.5],
+                backgroundColor: [
+                    '#00F2EA', '#FF0050', '#00D4FF', '#B537F2',
+                    '#FF006E', '#00FF9D', '#4285F4', '#FBBC05', '#666'
+                ],
+                volumes: ['1.97M views/mese', '1.47M views/mese', '950K views/mese', '672K views/mese', '438K views/mese', '288K views/mese', '156K views/mese', '90K views/mese', '150K views/mese'],
+                yoy: ['+58%', '+72%', '+95%', '+48%', '+112%', '+38%', '+135%', '+89%', '+42%'],
+                borderWidth: 0
+            }]
+        };
+        
+        new Chart(document.getElementById('tiktokChart'), {
+            type: 'doughnut',
+            data: tiktokData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#ffffff',
+                            padding: 15,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: tooltipConfig,
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 13 },
+                        formatter: (value) => value > 5 ? value.toFixed(1) + '%' : ''
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+        
+        // Amazon Doughnut Chart - Fashion
+        const amazonData = {
+            labels: ['Women\'s Fashion', 'Men\'s Fashion', 'Accessories', 'Shoes & Bags', 'Jewelry', 'Kids Fashion', 'Activewear', 'Luggage', 'Altri'],
+            datasets: [{
+                data: [31.2, 22.8, 15.6, 12.4, 7.8, 5.2, 3.4, 2.1, 1.5],
+                backgroundColor: [
+                    '#FF9900', '#146EB4', '#232F3E', '#00D4FF',
+                    '#B537F2', '#FF006E', '#00FF9D', '#4285F4', '#666'
+                ],
+                volumes: ['2.18M/mese', '1.59M/mese', '1.09M/mese', '866K/mese', '545K/mese', '364K/mese', '238K/mese', '147K/mese', '105K/mese'],
+                yoy: ['+38%', '+45%', '+32%', '+28%', '+41%', '+22%', '+58%', '+15%', '+18%'],
+                borderWidth: 0
+            }]
+        };
+        
+        new Chart(document.getElementById('amazonChart'), {
+            type: 'doughnut',
+            data: amazonData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#ffffff',
+                            padding: 15,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: tooltipConfig,
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 13 },
+                        formatter: (value) => value > 5 ? value.toFixed(1) + '%' : ''
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+        
+        // Comparison Bar Chart - Fashion
+        new Chart(document.getElementById('comparisonChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'],
+                datasets: [
+                    {
+                        label: 'Google Fashion',
+                        data: [8.5, 7.2, 8.8, 9.5, 10.2, 9.8, 8.4, 8.9, 9.8, 11.2, 15.8, 16.5],
+                        backgroundColor: '#4285F4'
+                    },
+                    {
+                        label: 'TikTok Fashion',
+                        data: [4.8, 4.2, 5.5, 6.2, 6.8, 6.5, 5.8, 6.2, 7.1, 8.5, 11.2, 12.1],
+                        backgroundColor: '#00F2EA'
+                    },
+                    {
+                        label: 'Amazon Fashion',
+                        data: [5.5, 4.8, 6.2, 6.8, 7.5, 7.2, 6.4, 6.9, 7.8, 9.2, 13.5, 14.2],
+                        backgroundColor: '#FF9900'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#888' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: {
+                        ticks: { color: '#888' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#ffffff', padding: 20 }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#00ff9d',
+                        bodyColor: '#ffffff',
+                        borderColor: '#00ff9d',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+        
+        // Seasonality Charts (Smooth Lines) - Fashion Keywords
+        const months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+        
+        const seasonalityConfig = {
+            type: 'line',
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                tension: 0.4,
+                plugins: {
+                    legend: {
+                        labels: { color: '#ffffff', font: { size: 11 } }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#00ff9d',
+                        bodyColor: '#ffffff'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#888' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: {
+                        ticks: { color: '#888' },
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                }
+            }
+        };
+        
+        // Google Seasonality - Fashion
+        new Chart(document.getElementById('googleSeasonalityChart'), {
+            ...seasonalityConfig,
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'summer dress',
+                        data: [320, 380, 520, 780, 1120, 1450, 1680, 1520, 980, 620, 420, 340],
+                        borderColor: '#EA4335',
+                        backgroundColor: 'rgba(234, 67, 53, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'winter coat',
+                        data: [1580, 1420, 980, 520, 280, 180, 150, 220, 480, 920, 1380, 1620],
+                        borderColor: '#4285F4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'leather jacket',
+                        data: [820, 720, 680, 620, 580, 520, 480, 550, 780, 1120, 1280, 1180],
+                        borderColor: '#FBBC05',
+                        backgroundColor: 'rgba(251, 188, 5, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'white sneakers',
+                        data: [680, 720, 820, 920, 1080, 1120, 980, 920, 880, 820, 920, 1180],
+                        borderColor: '#34A853',
+                        backgroundColor: 'rgba(52, 168, 83, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'crossbody bag',
+                        data: [520, 580, 620, 680, 720, 680, 620, 580, 720, 880, 1120, 1280],
+                        borderColor: '#00D4FF',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'ankle boots',
+                        data: [1180, 980, 720, 480, 280, 180, 150, 220, 520, 880, 1280, 1420],
+                        borderColor: '#B537F2',
+                        backgroundColor: 'rgba(181, 55, 242, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'maxi dress',
+                        data: [280, 320, 480, 680, 920, 1180, 1280, 1120, 820, 580, 420, 380],
+                        borderColor: '#FF006E',
+                        backgroundColor: 'rgba(255, 0, 110, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'blazer women',
+                        data: [720, 680, 720, 780, 820, 720, 620, 680, 880, 1020, 1180, 1120],
+                        borderColor: '#00FF9D',
+                        backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            }
+        });
+        
+        // TikTok Seasonality - Fashion
+        new Chart(document.getElementById('tiktokSeasonalityChart'), {
+            ...seasonalityConfig,
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: '#ootd',
+                        data: [820, 880, 950, 1080, 1220, 1180, 1020, 980, 1120, 1320, 1680, 1820],
+                        borderColor: '#00F2EA',
+                        backgroundColor: 'rgba(0, 242, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '#fashionhaul',
+                        data: [680, 720, 820, 920, 1020, 980, 880, 920, 1080, 1280, 1580, 1720],
+                        borderColor: '#FF0050',
+                        backgroundColor: 'rgba(255, 0, 80, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '#stylingtips',
+                        data: [520, 580, 650, 720, 820, 780, 720, 680, 820, 980, 1180, 1280],
+                        borderColor: '#00D4FF',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '#tryon',
+                        data: [420, 480, 550, 620, 680, 720, 680, 620, 720, 880, 1020, 1120],
+                        borderColor: '#B537F2',
+                        backgroundColor: 'rgba(181, 55, 242, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '#thriftflip',
+                        data: [280, 320, 380, 420, 480, 520, 480, 450, 520, 620, 780, 880],
+                        borderColor: '#FF006E',
+                        backgroundColor: 'rgba(255, 0, 110, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '#lookbook',
+                        data: [180, 220, 280, 320, 380, 420, 380, 350, 420, 520, 680, 780],
+                        borderColor: '#00FF9D',
+                        backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '#trendalert',
+                        data: [120, 150, 180, 220, 280, 320, 280, 250, 320, 420, 580, 680],
+                        borderColor: '#4285F4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: '#diyfashion',
+                        data: [80, 120, 150, 180, 220, 280, 250, 220, 280, 380, 520, 620],
+                        borderColor: '#FBBC05',
+                        backgroundColor: 'rgba(251, 188, 5, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            }
+        });
+        
+        // Amazon Seasonality - Fashion
+        new Chart(document.getElementById('amazonSeasonalityChart'), {
+            ...seasonalityConfig,
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'women dresses',
+                        data: [1.52, 1.38, 1.65, 1.92, 2.25, 2.48, 2.32, 2.18, 2.05, 1.88, 2.52, 2.85],
+                        borderColor: '#FF9900',
+                        backgroundColor: 'rgba(255, 153, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'men suits',
+                        data: [1.18, 1.05, 1.12, 1.25, 1.38, 1.22, 1.05, 1.18, 1.48, 1.72, 1.95, 1.88],
+                        borderColor: '#146EB4',
+                        backgroundColor: 'rgba(20, 110, 180, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'handbags leather',
+                        data: [0.82, 0.88, 0.95, 1.05, 1.12, 1.08, 0.98, 0.92, 1.08, 1.28, 1.65, 1.82],
+                        borderColor: '#232F3E',
+                        backgroundColor: 'rgba(35, 47, 62, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'running shoes',
+                        data: [0.95, 1.02, 1.15, 1.28, 1.42, 1.38, 1.22, 1.18, 1.28, 1.45, 1.72, 1.85],
+                        borderColor: '#00D4FF',
+                        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'jewelry gold',
+                        data: [0.58, 0.62, 0.68, 0.75, 0.82, 0.78, 0.72, 0.68, 0.82, 0.98, 1.28, 1.45],
+                        borderColor: '#B537F2',
+                        backgroundColor: 'rgba(181, 55, 242, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'kids clothing',
+                        data: [0.48, 0.42, 0.52, 0.58, 0.65, 0.62, 0.55, 0.68, 0.88, 1.05, 1.38, 1.52],
+                        borderColor: '#FF006E',
+                        backgroundColor: 'rgba(255, 0, 110, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'activewear women',
+                        data: [0.42, 0.48, 0.55, 0.62, 0.72, 0.68, 0.62, 0.58, 0.68, 0.82, 1.05, 1.18],
+                        borderColor: '#00FF9D',
+                        backgroundColor: 'rgba(0, 255, 157, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'luggage travel',
+                        data: [0.32, 0.28, 0.35, 0.48, 0.68, 0.82, 0.95, 0.88, 0.62, 0.48, 0.72, 0.88],
+                        borderColor: '#4285F4',
+                        backgroundColor: 'rgba(66, 133, 244, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            }
+        });
+        
+        // Ask AI Function
+        function askAI(platform) {
+            const questions = {
+                google: [
+                    '1. Quale categoria fashion ha il miglior ROI per Shopping Ads? Come ottimizzare bid strategy per "dresses" vs "footwear"?',
+                    '2. Come strutturare campagne per "sustainable fashion" e "ethical clothing"? Qual è il CPM target?',
+                    '3. Quali long-tail keyword Accessories hanno + potenziale di conversione? (es. "vegan leather bag" vs "crossbody bag")',
+                    '4. Strategia per contrastare competitors su "brand name + reviews"? Come migliorare organic ranking?'
+                ],
+                tiktok: [
+                    '1. Quali fashion creator/influencer ingaggiare per OOTD content? Micro (10K-100K) vs Macro (100K-1M)?',
+                    '2. Come replicare viralità degli haul video? Script structure, hook first 3 secondi, CTA placement?',
+                    '3. Timing ottimale per lanciare fashion challenge? Pre-stagione vs in-season? Budget Spark Ads consigliato?',
+                    '4. ROI atteso per TikTok Shop vs link-in-bio strategy? Commission rate ottimale per creator partnerships?'
+                ],
+                amazon: [
+                    '1. Come migliorare conversion rate su Women\'s Fashion? A+ Content best practices? Video length ottimale?',
+                    '2. Strategia pricing dinamico per Fashion vs competitors? Quando usare Lightning Deals? Margin target?',
+                    '3. Come ottimizzare per "Amazon\'s Choice" badge? Quali metriche impattano (CTR, CVR, return rate)?',
+                    '4. Opportunità bundle cross-category Fashion + Accessories? AOV lift atteso? Come strutturare Sponsored Display?'
+                ]
+            };
+            
+            const msg = `🤖 Domande AI suggerite per ${platform.toUpperCase()} Fashion:\n\n${questions[platform].join('\n\n')}`;
+            alert(msg);
+        }
+    </script>
+</body>
+</html>
